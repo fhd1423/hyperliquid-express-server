@@ -5,7 +5,7 @@ import { getPrices } from "../utils/assets";
 import { getAssetID } from "../utils/assets";
 
 const app: Express = express();
-const port = 3000;
+const port = 80;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
