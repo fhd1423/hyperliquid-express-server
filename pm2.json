@@ -4,7 +4,6 @@
       "name": "hyperliquid",
       "exec_mode": "cluster",
       "instances": "1",
-      "cron_restart": "0 * * * *",
       "script": "./src/server.ts",
       "interpreter": "ts-node"
     }
