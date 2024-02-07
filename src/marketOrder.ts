@@ -37,29 +37,24 @@ const run = async (
 
   //console.log(action, nonce, vaultAddress, hexToSignature(signature));
 
-  try {
-    let response = await axios.post(
-      `https://api.hyperliquid.xyz/exchange`,
-      {
-        action,
-        nonce,
-        vaultAddress,
-        signature: {
-          ...hexToSignature(signature),
-          v: Number(hexToSignature(signature).v),
-        },
+  let response = await axios.post(
+    `https://api.hyperliquid.xyz/exchange`,
+    {
+      action,
+      nonce,
+      vaultAddress,
+      signature: {
+        ...hexToSignature(signature),
+        v: Number(hexToSignature(signature).v),
       },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    },
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 
-    console.log(isBuy ? "Bought" : "Sold");
-    console.log(response.data);
-    console.log(response.data.response.data.statuses || "No Status");
-  } catch (e) {
-    console.log("Error:", e);
-  }
+  if (!response.data.response.data.statuses)
+    throw new Error("Error in connection");
 };
 
 const generateSignature = async (

@@ -25,12 +25,22 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or buyPrice" });
       return;
     }
-    main(
-      assetID,
-      true,
-      parseFloat((buyPrice * 1.1).toFixed(2)),
-      Math.floor(1000 / buyPrice)
-    );
+    try {
+      await main(
+        assetID,
+        true,
+        parseFloat((buyPrice * 1.1).toFixed(2)),
+        Math.floor(1000 / buyPrice)
+      );
+    } catch (e) {
+      console.log("caught error, retrying");
+      await main(
+        assetID,
+        true,
+        parseFloat((buyPrice * 1.1).toFixed(2)),
+        Math.floor(1000 / buyPrice)
+      );
+    }
   }
   if (req.body.type == "sell") {
     let assetID = await getAssetID(ticker);
@@ -40,12 +50,22 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or sellPrice" });
       return;
     }
-    main(
-      assetID,
-      false,
-      parseFloat((sellPrice * 0.9).toFixed(2)),
-      Math.floor(1000 / sellPrice)
-    );
+    try {
+      await main(
+        assetID,
+        false,
+        parseFloat((sellPrice * 0.9).toFixed(2)),
+        Math.floor(1000 / sellPrice)
+      );
+    } catch (e) {
+      console.log("caught error, retrying");
+      await main(
+        assetID,
+        false,
+        parseFloat((sellPrice * 0.9).toFixed(2)),
+        Math.floor(1000 / sellPrice)
+      );
+    }
   }
   res.send("Recived alert");
 });
