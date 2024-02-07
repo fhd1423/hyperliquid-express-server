@@ -29,7 +29,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         true,
-        parseFloat((buyPrice * 1.1).toFixed(2)),
+        parseFloat((buyPrice * 1.2).toFixed(3)),
         Math.floor(1000 / buyPrice)
       );
     } catch (e) {
@@ -37,7 +37,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         true,
-        parseFloat((buyPrice * 1.1).toFixed(2)),
+        parseFloat((buyPrice * 1.2).toFixed(3)),
         Math.floor(1000 / buyPrice)
       );
     }
@@ -54,7 +54,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         false,
-        parseFloat((sellPrice * 0.9).toFixed(2)),
+        parseFloat((sellPrice * 0.8).toFixed(3)),
         Math.floor(1000 / sellPrice)
       );
     } catch (e) {
@@ -62,7 +62,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         false,
-        parseFloat((sellPrice * 0.9).toFixed(2)),
+        parseFloat((sellPrice * 0.8).toFixed(3)),
         Math.floor(1000 / sellPrice)
       );
     }
