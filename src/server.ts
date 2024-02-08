@@ -28,21 +28,12 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or buyPrice" });
       return;
     }
+    buyPrice = parseFloat((buyPrice * 1.2).toFixed(4));
     try {
-      await main(
-        assetID,
-        true,
-        parseFloat((buyPrice * 1.2).toFixed(4)),
-        Math.floor(1000 / buyPrice)
-      );
+      await main(assetID, true, buyPrice, Math.floor(1000 / buyPrice));
     } catch (e) {
       console.log("caught error, retrying");
-      await main(
-        assetID,
-        true,
-        parseFloat((buyPrice * 1.2).toFixed(4)),
-        Math.floor(1000 / buyPrice)
-      );
+      await main(assetID, true, buyPrice, Math.floor(1000 / buyPrice));
     }
   }
   if (req.body.type == "sell") {
@@ -53,21 +44,12 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or sellPrice" });
       return;
     }
+    sellPrice = parseFloat((sellPrice * 0.8).toFixed(4));
     try {
-      await main(
-        assetID,
-        false,
-        parseFloat((sellPrice * 0.8).toFixed(4)),
-        Math.floor(1000 / sellPrice)
-      );
+      await main(assetID, false, sellPrice, Math.floor(1000 / sellPrice));
     } catch (e) {
       console.log("caught error, retrying");
-      await main(
-        assetID,
-        false,
-        parseFloat((sellPrice * 0.8).toFixed(4)),
-        Math.floor(1000 / sellPrice)
-      );
+      await main(assetID, false, sellPrice, Math.floor(1000 / sellPrice));
     }
   }
   res.send("Recived alert");
