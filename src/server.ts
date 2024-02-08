@@ -15,7 +15,10 @@ app.get("/", (req: Request, res: Response) => {
 
 app.post("/", async (req: Request, res: Response) => {
   console.log(req.body);
-  const ticker = req.body.ticker.replace("USDT", "");
+  let ticker;
+  if (req.body.ticker.includes("USDT"))
+    ticker = req.body.ticker.replace("USDT", "");
+  else return;
 
   if (req.body.type == "buy") {
     let assetID = await getAssetID(ticker);
@@ -29,7 +32,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         true,
-        parseFloat((buyPrice * 1.2).toFixed(3)),
+        parseFloat((buyPrice * 1.2).toFixed(4)),
         Math.floor(1000 / buyPrice)
       );
     } catch (e) {
@@ -37,7 +40,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         true,
-        parseFloat((buyPrice * 1.2).toFixed(3)),
+        parseFloat((buyPrice * 1.2).toFixed(4)),
         Math.floor(1000 / buyPrice)
       );
     }
@@ -54,7 +57,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         false,
-        parseFloat((sellPrice * 0.8).toFixed(3)),
+        parseFloat((sellPrice * 0.8).toFixed(4)),
         Math.floor(1000 / sellPrice)
       );
     } catch (e) {
@@ -62,7 +65,7 @@ app.post("/", async (req: Request, res: Response) => {
       await main(
         assetID,
         false,
-        parseFloat((sellPrice * 0.8).toFixed(3)),
+        parseFloat((sellPrice * 0.8).toFixed(4)),
         Math.floor(1000 / sellPrice)
       );
     }
