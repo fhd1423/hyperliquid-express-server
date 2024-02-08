@@ -28,7 +28,7 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or buyPrice" });
       return;
     }
-    buyPrice = parseFloat((buyPrice * 1.2).toFixed(4));
+    buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
     try {
       await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
     } catch (e) {
@@ -44,7 +44,7 @@ app.post("/", async (req: Request, res: Response) => {
       res.status(500).send({ error: "Could not fetch assetID or sellPrice" });
       return;
     }
-    sellPrice = parseFloat((sellPrice * 0.8).toFixed(4));
+    sellPrice = parseFloat((sellPrice * 0.98).toFixed(4));
     try {
       await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
     } catch (e) {
