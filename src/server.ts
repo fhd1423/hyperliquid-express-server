@@ -20,36 +20,18 @@ app.post("/", async (req: Request, res: Response) => {
     ticker = req.body.ticker.replace("USDT", "");
   else return;
 
-  if (req.body.type == "buy") {
-    let assetID = await getAssetID(ticker);
-    let buyPrice = await getPrices(ticker);
-    if (!assetID || !buyPrice) {
-      console.error("Error fetching assetId and price");
-      res.status(500).send({ error: "Could not fetch assetID or buyPrice" });
-      return;
-    }
-    buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
+  const type = req.body.type;
+  if (type == "buy" || type == "sell") {
     try {
-      await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
+      type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
     } catch (e) {
-      console.log("caught error, retrying");
-      await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
-    }
-  }
-  if (req.body.type == "sell") {
-    let assetID = await getAssetID(ticker);
-    let sellPrice = await getPrices(ticker);
-    if (!assetID || !sellPrice) {
-      console.error("Error fetching assetId and price");
-      res.status(500).send({ error: "Could not fetch assetID or sellPrice" });
-      return;
-    }
-    sellPrice = parseFloat((sellPrice * 0.98).toFixed(4));
-    try {
-      await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
-    } catch (e) {
-      console.log("caught error, retrying");
-      await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
+      console.log("first try failed");
+      await new Promise((resolve) => setTimeout(resolve, 30000)); // 30000 milliseconds = 30 seconds
+      try {
+        type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
+      } catch (e) {
+        console.log("second try failed");
+      }
     }
   }
   res.send("Recived alert");
@@ -58,3 +40,27 @@ app.post("/", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
+
+const executeBuy = async (ticker: string) => {
+  let assetID = await getAssetID(ticker);
+  let buyPrice = await getPrices(ticker);
+  if (!assetID || !buyPrice) {
+    console.error("Error fetching assetId and price");
+    return;
+  }
+  buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
+
+  await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
+};
+
+const executeSell = async (ticker: string) => {
+  let assetID = await getAssetID(ticker);
+  let sellPrice = await getPrices(ticker);
+  if (!assetID || !sellPrice) {
+    console.error("Error fetching assetId and price");
+    return;
+  }
+  sellPrice = parseFloat((sellPrice * 0.98).toFixed(4));
+
+  await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
+};
