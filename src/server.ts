@@ -22,18 +22,25 @@ app.post("/", async (req: Request, res: Response) => {
 
   const type = req.body.type;
   if (type == "buy" || type == "sell") {
-    try {
-      type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
-    } catch (e) {
-      console.log("first try failed");
-      await new Promise((resolve) => setTimeout(resolve, 60000)); // 30000 milliseconds = 30 seconds
+    for (let attempt = 1; attempt <= 10; attempt++) {
       try {
-        type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
+        if (type == "buy") {
+          await executeBuy(ticker);
+        } else {
+          await executeSell(ticker);
+        }
+        console.log(`Operation succeeded on attempt ${attempt}`);
+        break; // Break out of the loop on success
       } catch (e) {
-        console.log("second try failed");
+        console.log(`Attempt ${attempt} failed`);
+        if (attempt < 10) {
+          // Wait for 60 seconds before the next attempt, but only if not on the last attempt
+          await new Promise((resolve) => setTimeout(resolve, 60000));
+        }
       }
     }
   }
+
   res.send("Recived alert");
 });
 
