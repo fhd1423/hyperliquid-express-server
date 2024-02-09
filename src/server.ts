@@ -26,7 +26,7 @@ app.post("/", async (req: Request, res: Response) => {
       type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
     } catch (e) {
       console.log("first try failed");
-      await new Promise((resolve) => setTimeout(resolve, 30000)); // 30000 milliseconds = 30 seconds
+      await new Promise((resolve) => setTimeout(resolve, 60000)); // 30000 milliseconds = 30 seconds
       try {
         type == "buy" ? await executeBuy(ticker) : await executeSell(ticker);
       } catch (e) {
