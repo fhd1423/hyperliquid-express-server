@@ -57,7 +57,7 @@ const executeBuy = async (ticker: string) => {
   }
   buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
 
-  await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
+  await main(assetID, true, buyPrice, Math.floor(3000 / buyPrice));
 };
 
 const executeSell = async (ticker: string) => {
@@ -67,7 +67,7 @@ const executeSell = async (ticker: string) => {
     console.error("Error fetching assetId and price");
     return;
   }
-  sellPrice = parseFloat((sellPrice * 0.995).toFixed(4));
+  sellPrice = parseFloat((sellPrice * 0.99).toFixed(4));
 
-  await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
+  await main(assetID, false, sellPrice, Math.floor(3000 / sellPrice));
 };
