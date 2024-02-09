@@ -67,7 +67,7 @@ const executeSell = async (ticker: string) => {
     console.error("Error fetching assetId and price");
     return;
   }
-  sellPrice = parseFloat((sellPrice * 0.98).toFixed(4));
+  sellPrice = parseFloat((sellPrice * 0.995).toFixed(4));
 
   await main(assetID, false, sellPrice, Math.floor(2000 / sellPrice));
 };
