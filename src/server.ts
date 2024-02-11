@@ -1,7 +1,7 @@
 // src/index.js
 import express, { Express, Request, Response } from "express";
 import { main } from "./marketOrder";
-import { getPrices } from "../utils/assets";
+import { getPosition, getPrices } from "../utils/assets";
 import { getAssetID } from "../utils/assets";
 
 const app: Express = express();
@@ -68,6 +68,8 @@ const executeSell = async (ticker: string) => {
     return;
   }
   sellPrice = parseFloat((sellPrice * 0.99).toFixed(4));
+  let currentSize = await getPosition(ticker);
+  if (!currentSize) return;
 
-  await main(assetID, false, sellPrice, Math.floor(3000 / sellPrice));
+  await main(assetID, false, sellPrice, currentSize);
 };
