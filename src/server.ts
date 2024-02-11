@@ -57,7 +57,7 @@ const executeBuy = async (ticker: string) => {
   }
   buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
 
-  await main(assetID, true, buyPrice, Math.floor(3000 / buyPrice));
+  await main(assetID, true, buyPrice, Math.floor(4000 / buyPrice));
 };
 
 const executeSell = async (ticker: string) => {
