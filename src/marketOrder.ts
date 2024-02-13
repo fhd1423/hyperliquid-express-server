@@ -53,8 +53,18 @@ const run = async (
     }
   );
 
-  if (!response.data.response.data.statuses)
+  if (!response.data.response.data.statuses) {
+    console.log({
+      action,
+      nonce,
+      vaultAddress,
+      signature: {
+        ...hexToSignature(signature),
+        v: Number(hexToSignature(signature).v),
+      },
+    });
     throw new Error("Error in connection");
+  }
 };
 
 const generateSignature = async (
