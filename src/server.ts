@@ -56,7 +56,7 @@ const executeBuy = async (ticker: string) => {
     return;
   }
   buyPrice = parseFloat((buyPrice * 1.02).toFixed(4));
-  if (ticker == "APT") buyPrice = parseFloat((buyPrice * 0.98).toFixed(2));
+  if (ticker == "APT") buyPrice = parseFloat((buyPrice * 1.02).toFixed(2));
 
   let currentSize = await getPosition(ticker);
   if (currentSize) return;
