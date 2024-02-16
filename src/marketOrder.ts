@@ -53,16 +53,17 @@ const run = async (
     }
   );
 
+  console.log({
+    action,
+    nonce,
+    vaultAddress,
+    signature: {
+      ...hexToSignature(signature),
+      v: Number(hexToSignature(signature).v),
+    },
+  });
+  console.log(response.data);
   if (!response.data.response.data.statuses) {
-    console.log({
-      action,
-      nonce,
-      vaultAddress,
-      signature: {
-        ...hexToSignature(signature),
-        v: Number(hexToSignature(signature).v),
-      },
-    });
     throw new Error("Error in connection");
   }
   console.log(response.data.response.data.statuses);
