@@ -55,7 +55,7 @@ const executeBuy = async (ticker: string) => {
     console.error("Error fetching assetId and price");
     return;
   }
-  buyPrice = parseFloat((buyPrice * 1.01).toFixed(4));
+  buyPrice = parseFloat((buyPrice * 1.02).toFixed(2));
   let currentSize = await getPosition(ticker);
   if (currentSize) return;
 
@@ -69,7 +69,7 @@ const executeSell = async (ticker: string) => {
     console.error("Error fetching assetId and price");
     return;
   }
-  sellPrice = parseFloat((sellPrice * 0.99).toFixed(4));
+  sellPrice = parseFloat((sellPrice * 0.98).toFixed(2));
   let currentSize = await getPosition(ticker);
   if (!currentSize) return;
 

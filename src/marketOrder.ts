@@ -65,6 +65,7 @@ const run = async (
     });
     throw new Error("Error in connection");
   }
+  console.log(response.data.response.data.statuses);
 };
 
 const generateSignature = async (
