@@ -62,7 +62,7 @@ const executeBuy = async (ticker: string) => {
   let currentSize = await getPosition(ticker);
   if (currentSize) return;
 
-  await main(assetID, true, buyPrice, Math.floor(4000 / buyPrice));
+  await main(assetID, true, buyPrice, Math.floor(2000 / buyPrice));
 };
 
 const executeSell = async (ticker: string) => {
