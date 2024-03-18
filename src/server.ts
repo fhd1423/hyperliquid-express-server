@@ -58,11 +58,17 @@ const executeBuy = async (ticker: string) => {
   buyPrice = parseFloat((buyPrice * 1.02).toFixed(4));
   if (ticker == "APT" || ticker == "INJ")
     buyPrice = parseFloat((buyPrice * 1.02).toFixed(2));
-
   let currentSize = await getPosition(ticker);
-  if (!currentSize) return;
 
-  await main(assetID, true, buyPrice, Math.abs(currentSize));
+  if (DIRECTION === "SHORT") {
+    if (!currentSize) return;
+
+    await main(assetID, true, buyPrice, Math.abs(currentSize));
+  } else {
+    if (currentSize) return;
+
+    await main(assetID, true, buyPrice, Math.floor(5000 / buyPrice));
+  }
 };
 
 const executeSell = async (ticker: string) => {
@@ -76,7 +82,15 @@ const executeSell = async (ticker: string) => {
   if (ticker == "APT" || ticker == "INJ")
     sellPrice = parseFloat((sellPrice * 0.98).toFixed(2));
   let currentSize = await getPosition(ticker);
-  if (currentSize) return;
+  if (DIRECTION === "SHORT") {
+    if (currentSize) return;
 
-  await main(assetID, false, sellPrice, Math.floor(5000 / sellPrice));
+    await main(assetID, false, sellPrice, Math.floor(5000 / sellPrice));
+  } else {
+    if (!currentSize) return;
+
+    await main(assetID, false, sellPrice, Math.abs(currentSize));
+  }
 };
+
+const DIRECTION: "LONG" | "SHORT" = "LONG";
