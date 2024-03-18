@@ -60,9 +60,9 @@ const executeBuy = async (ticker: string) => {
     buyPrice = parseFloat((buyPrice * 1.02).toFixed(2));
 
   let currentSize = await getPosition(ticker);
-  if (currentSize) return;
+  if (!currentSize) return;
 
-  await main(assetID, true, buyPrice, Math.floor(5000 / buyPrice));
+  await main(assetID, true, buyPrice, Math.abs(currentSize));
 };
 
 const executeSell = async (ticker: string) => {
@@ -76,7 +76,7 @@ const executeSell = async (ticker: string) => {
   if (ticker == "APT" || ticker == "INJ")
     sellPrice = parseFloat((sellPrice * 0.98).toFixed(2));
   let currentSize = await getPosition(ticker);
-  if (!currentSize) return;
+  if (currentSize) return;
 
-  await main(assetID, false, sellPrice, currentSize);
+  await main(assetID, false, sellPrice, Math.floor(5000 / sellPrice));
 };
