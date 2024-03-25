@@ -9,6 +9,8 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+let activeTickers: string[] = [];
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
@@ -24,6 +26,7 @@ app.post("/", async (req: Request, res: Response) => {
   if (type == "buy" || type == "sell") {
     for (let attempt = 1; attempt <= 10; attempt++) {
       try {
+        activeTickers.push(ticker);
         if (type == "buy") {
           await executeBuy(ticker);
         } else {
@@ -36,6 +39,39 @@ app.post("/", async (req: Request, res: Response) => {
         if (attempt < 10) {
           // Wait for 60 seconds before the next attempt, but only if not on the last attempt
           await new Promise((resolve) => setTimeout(resolve, 60000));
+        }
+      }
+    }
+  }
+  if (type == "nuke") {
+    for (let ticker of activeTickers) {
+      for (let attempt = 1; attempt <= 10; attempt++) {
+        try {
+          await executeSell(ticker);
+          console.log(`Operation succeeded on attempt ${attempt}`);
+          break;
+        } catch (e) {
+          console.log(`Attempt ${attempt} failed`);
+          if (attempt < 10) {
+            await new Promise((resolve) => setTimeout(resolve, 60000));
+          }
+        }
+      }
+    }
+  }
+
+  if (type == "pump") {
+    for (let ticker of activeTickers) {
+      for (let attempt = 1; attempt <= 10; attempt++) {
+        try {
+          await executeBuy(ticker);
+          console.log(`Operation succeeded on attempt ${attempt}`);
+          break;
+        } catch (e) {
+          console.log(`Attempt ${attempt} failed`);
+          if (attempt < 10) {
+            await new Promise((resolve) => setTimeout(resolve, 60000));
+          }
         }
       }
     }
