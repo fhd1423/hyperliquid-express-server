@@ -27,34 +27,32 @@ app.post("/", async (req: Request, res: Response) => {
   if (type == "buy" || type == "sell") {
     try {
       activeTickers.push(ticker);
-      for (let attempt = 1; attempt <= 10; attempt++) {
-        try {
-          activeTickers.push(ticker);
-          if (type == "buy") {
-            await executeTrade(ticker, true);
-          } else {
-            await executeTrade(ticker, false);
-          }
-          console.log(`Operation succeeded on attempt ${attempt}`);
-          break;
-        } catch (e) {
-          console.log(e);
-          console.log(`Attempt ${attempt} failed`);
-          if (attempt < 10) {
-            await new Promise((resolve) => setTimeout(resolve, 60000));
-          }
-        }
+      if (type == "buy") {
+        await executeTrade(ticker, true);
+      } else {
+        await executeTrade(ticker, false);
       }
+      res.send("Recived alert");
     } catch (e) {
-      console.log(`Error executing trade`);
+      res.send("Error executing trade");
+      console.log(e);
     }
   }
-  if (type == "long" || type == "short")
+  if (type == "long" || type == "short") {
+    await closeAllPositions();
     DIRECTION = type.toUpperCase() as "LONG" | "SHORT";
+    res.send("Closed all positions and flipped to " + DIRECTION);
+  }
 
-  if (type == "amount") TRADE_AMOUNT = Number(req.body.amount);
+  if (type == "amount") {
+    TRADE_AMOUNT = Number(req.body.amount);
+    res.send("Set trade amount to " + TRADE_AMOUNT);
+  }
 
-  res.send("Recived alert");
+  if (type == "close") {
+    await closeAllPositions();
+    res.send("Closed all positions");
+  }
 });
 
 app.listen(port, () => {
@@ -98,7 +96,6 @@ const executeTrade = async (ticker: string, isBuy: boolean) => {
   await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
 };
 
-
 function formatNumber(price: number, multiplier: number) {
   let result = price * multiplier;
 
@@ -123,3 +120,11 @@ function formatNumber(price: number, multiplier: number) {
     }
   }
 }
+
+const closeAllPositions = async () => {
+  for (let activeTicker of activeTickers) {
+    DIRECTION == "LONG"
+      ? await executeTrade(activeTicker, false)
+      : await executeTrade(activeTicker, true);
+  }
+};
