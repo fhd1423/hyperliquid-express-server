@@ -1,4 +1,3 @@
-// src/index.js
 import express, { Express, Request, Response } from "express";
 import { main } from "./marketOrder";
 import { getPosition, getPrices } from "../utils/assets";
@@ -10,6 +9,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let activeTickers: string[] = [];
+let DIRECTION: "LONG" | "SHORT" = "SHORT";
+let TRADE_AMOUNT = 5000;
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
@@ -24,58 +25,34 @@ app.post("/", async (req: Request, res: Response) => {
 
   const type = req.body.type;
   if (type == "buy" || type == "sell") {
-    for (let attempt = 1; attempt <= 10; attempt++) {
-      try {
-        activeTickers.push(ticker);
-        if (type == "buy") {
-          await executeBuy(ticker);
-        } else {
-          await executeSell(ticker);
-        }
-        console.log(`Operation succeeded on attempt ${attempt}`);
-        break; // Break out of the loop on success
-      } catch (e) {
-        console.log(`Attempt ${attempt} failed`);
-        if (attempt < 10) {
-          // Wait for 60 seconds before the next attempt, but only if not on the last attempt
-          await new Promise((resolve) => setTimeout(resolve, 60000));
-        }
-      }
-    }
-  }
-  if (type == "nuke") {
-    for (let ticker of activeTickers) {
+    try {
+      activeTickers.push(ticker);
       for (let attempt = 1; attempt <= 10; attempt++) {
         try {
-          await executeSell(ticker);
+          activeTickers.push(ticker);
+          if (type == "buy") {
+            await executeTrade(ticker, true);
+          } else {
+            await executeTrade(ticker, false);
+          }
           console.log(`Operation succeeded on attempt ${attempt}`);
           break;
         } catch (e) {
+          console.log(e);
           console.log(`Attempt ${attempt} failed`);
           if (attempt < 10) {
             await new Promise((resolve) => setTimeout(resolve, 60000));
           }
         }
       }
+    } catch (e) {
+      console.log(`Error executing trade`);
     }
   }
+  if (type == "long" || type == "short")
+    DIRECTION = type.toUpperCase() as "LONG" | "SHORT";
 
-  if (type == "pump") {
-    for (let ticker of activeTickers) {
-      for (let attempt = 1; attempt <= 10; attempt++) {
-        try {
-          await executeBuy(ticker);
-          console.log(`Operation succeeded on attempt ${attempt}`);
-          break;
-        } catch (e) {
-          console.log(`Attempt ${attempt} failed`);
-          if (attempt < 10) {
-            await new Promise((resolve) => setTimeout(resolve, 60000));
-          }
-        }
-      }
-    }
-  }
+  if (type == "amount") TRADE_AMOUNT = Number(req.body.amount);
 
   res.send("Recived alert");
 });
@@ -84,49 +61,64 @@ app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
 
-const executeBuy = async (ticker: string) => {
-  let assetID = await getAssetID(ticker);
-  let buyPrice = await getPrices(ticker);
-  if (!assetID || !buyPrice) {
+const executeTrade = async (ticker: string, isBuy: boolean) => {
+  const assetID = await getAssetID(ticker);
+  const price = await getPrices(ticker);
+  if (!assetID || !price) {
     console.error("Error fetching assetId and price");
     return;
   }
-  buyPrice = parseFloat((buyPrice * 1.02).toFixed(4));
-  if (ticker == "APT" || ticker == "INJ")
-    buyPrice = parseFloat((buyPrice * 1.02).toFixed(2));
-  let currentSize = await getPosition(ticker);
 
-  if (DIRECTION === "SHORT") {
-    if (!currentSize) return;
+  const multiplier = isBuy ? 1.05 : 0.95;
+  const currentSize = await getPosition(ticker);
 
-    await main(assetID, true, buyPrice, Math.abs(currentSize));
-  } else {
-    if (currentSize) return;
+  const isLong = DIRECTION === "LONG";
+  const isShort = DIRECTION === "SHORT";
 
-    await main(assetID, true, buyPrice, Math.floor(5000 / buyPrice));
-  }
+  // already long
+  if (isLong && currentSize && currentSize > 0 && isBuy) return;
+
+  // already short
+  if (isShort && currentSize && currentSize < 0 && !isBuy) return;
+
+  // new short when long only
+  if (isLong && !currentSize && !isBuy) return;
+
+  // new long when short only
+  if (isShort && !currentSize && isBuy) return;
+
+  const flipDirection =
+    (isLong && currentSize && currentSize > 0 && !isBuy) ||
+    (isShort && currentSize && currentSize < 0 && isBuy);
+
+  const tradeSize = flipDirection
+    ? Math.abs(currentSize ?? 0)
+    : Math.floor(TRADE_AMOUNT / price);
+
+  await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
 };
 
-const executeSell = async (ticker: string) => {
-  let assetID = await getAssetID(ticker);
-  let sellPrice = await getPrices(ticker);
-  if (!assetID || !sellPrice) {
-    console.error("Error fetching assetId and price");
-    return;
-  }
-  sellPrice = parseFloat((sellPrice * 0.98).toFixed(4));
-  if (ticker == "APT" || ticker == "INJ")
-    sellPrice = parseFloat((sellPrice * 0.98).toFixed(2));
-  let currentSize = await getPosition(ticker);
-  if (DIRECTION === "SHORT") {
-    if (currentSize) return;
+function formatNumber(price: number, multiplier: number) {
+  let result = price * multiplier;
 
-    await main(assetID, false, sellPrice, Math.floor(5000 / sellPrice));
+  let resultStr = result.toString();
+
+  let decimalPos = resultStr.indexOf(".");
+
+  if (decimalPos === -1) {
+    let significantResult = Number(result.toPrecision(5));
+    return significantResult;
   } else {
-    if (!currentSize) return;
+    let integerPart = resultStr.substring(0, decimalPos);
+    let significantFigures = integerPart.length;
 
-    await main(assetID, false, sellPrice, Math.abs(currentSize));
+    if (significantFigures >= 5) {
+      return Math.round(result);
+    } else {
+      let allowedDecimals = 5 - significantFigures;
+      allowedDecimals = Math.min(allowedDecimals, 5);
+      let formattedResult = result.toFixed(allowedDecimals);
+      return parseFloat(formattedResult);
+    }
   }
-};
-
-const DIRECTION: "LONG" | "SHORT" = "LONG";
+}
