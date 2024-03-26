@@ -129,4 +129,4 @@ const executeSell = async (ticker: string) => {
   }
 };
 
-const DIRECTION: "LONG" | "SHORT" = "LONG";
+const DIRECTION: "LONG" | "SHORT" = "SHORT";
