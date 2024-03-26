@@ -98,6 +98,7 @@ const executeTrade = async (ticker: string, isBuy: boolean) => {
   await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
 };
 
+
 function formatNumber(price: number, multiplier: number) {
   let result = price * multiplier;
 
