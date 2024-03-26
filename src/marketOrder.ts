@@ -24,18 +24,15 @@ const run = async (
     grouping: "na",
     orders: [
       {
-        asset: assetId,
-        isBuy,
-        limitPx: String(limitPx),
-        sz: String(size),
-        reduceOnly: false,
-        orderType: { limit: { tif: "Gtc" } },
-        cloid: undefined,
+        a: assetId,
+        b: isBuy,
+        p: String(limitPx),
+        s: String(size),
+        r: false,
+        t: { limit: { tif: "Gtc" } },
       },
     ],
   };
-
-  //console.log(action, nonce, vaultAddress, hexToSignature(signature));
 
   let response = await axios.post(
     `https://api.hyperliquid.xyz/exchange`,
@@ -53,12 +50,11 @@ const run = async (
     }
   );
 
-  console.log(action.orders);
   console.log(response.data);
-  if (!response.data.response.data.statuses) {
-    throw new Error("Error in connection");
-  }
-  console.log(response.data.response.data.statuses);
+  console.log(JSON.stringify(action));
+  //console.log(action.orders[0].p);
+  //console.log(response.data);
+  //console.log(response.data.response.data.statuses);
 };
 
 const generateSignature = async (
