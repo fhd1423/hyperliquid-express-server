@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let activeTickers: string[] = [];
-let DIRECTION: "LONG" | "SHORT" = "SHORT";
+let DIRECTION: "LONG" | "SHORT" = "LONG";
 let TRADE_AMOUNT = 5000;
 
 app.get("/", (req: Request, res: Response) => {
@@ -93,7 +93,13 @@ const executeTrade = async (ticker: string, isBuy: boolean) => {
     ? Math.abs(currentSize ?? 0)
     : Math.floor(TRADE_AMOUNT / price);
 
-  await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
+  try {
+    await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
+  } catch (e) {
+    console.log("Retrying trade after 60 seconds...");
+    await new Promise((resolve) => setTimeout(resolve, 60000));
+    await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
+  }
 };
 
 function formatNumber(price: number, multiplier: number) {
