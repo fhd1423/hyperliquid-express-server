@@ -52,10 +52,10 @@ const run = async (
 
   if (!response.data.status || response.data.status !== "ok") {
     console.log(response.data);
+    console.log(JSON.stringify(action));
     throw new Error("Error executing trade");
   }
 
-  //console.log(JSON.stringify(action));
   //console.log(action.orders[0].p);
   //console.log(response.data);
   //console.log(response.data.response.data.statuses);
