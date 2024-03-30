@@ -52,7 +52,17 @@ const run = async (
 
   if (!response.data.status || response.data.status !== "ok") {
     console.log(response.data);
-    console.log(JSON.stringify(action));
+    console.log(
+      JSON.stringify({
+        action,
+        nonce,
+        vaultAddress,
+        signature: {
+          ...hexToSignature(signature),
+          v: Number(hexToSignature(signature).v),
+        },
+      })
+    );
     throw new Error("Error executing trade");
   }
 
