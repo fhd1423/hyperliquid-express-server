@@ -67,7 +67,7 @@ const executeTrade = async (ticker: string, isBuy: boolean) => {
     return;
   }
 
-  const multiplier = isBuy ? 1.05 : 0.95;
+  const multiplier = 1; //isBuy ? 1.05 : 0.95;
   const currentSize = await getPosition(ticker);
 
   const isLong = DIRECTION === "LONG";
