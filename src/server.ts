@@ -39,7 +39,6 @@ app.post("/", async (req: Request, res: Response) => {
     }
   }
   if (type == "long" || type == "short") {
-    await closeAllPositions();
     DIRECTION = type.toUpperCase() as "LONG" | "SHORT";
     res.send("Closed all positions and flipped to " + DIRECTION);
   }
