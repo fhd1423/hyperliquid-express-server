@@ -109,17 +109,17 @@ function formatNumber(price: number, multiplier: number) {
   let decimalPos = resultStr.indexOf(".");
 
   if (decimalPos === -1) {
-    let significantResult = Number(result.toPrecision(4));
+    let significantResult = Number(result.toPrecision(5));
     return significantResult;
   } else {
     let integerPart = resultStr.substring(0, decimalPos);
     let significantFigures = integerPart.length;
 
-    if (significantFigures >= 4) {
+    if (significantFigures >= 5) {
       return Math.round(result);
     } else {
-      let allowedDecimals = 4 - significantFigures;
-      allowedDecimals = Math.min(allowedDecimals, 4);
+      let allowedDecimals = 5 - significantFigures;
+      allowedDecimals = Math.min(allowedDecimals, 5);
       let formattedResult = result.toFixed(allowedDecimals);
       return parseFloat(formattedResult);
     }
