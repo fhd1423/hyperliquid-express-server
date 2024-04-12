@@ -152,6 +152,7 @@ const createConnectionHash = (
   vaultAddress: Address,
   nonce: bigint
 ): Hex => {
+  console.log("px,", amountToBigAmount(limitPx));
   let encoded = keccak256(
     encodeAbiParameters(
       parseAbiParameters(
@@ -180,5 +181,13 @@ const createConnectionHash = (
 };
 
 const amountToBigAmount = (amount: number): bigint => {
-  return BigInt(Math.floor(amount * 10 ** 8));
+  // Convert the number to a string in the desired decimal precision
+  const amountStr = amount.toFixed(8);
+  // Replace the decimal point and convert directly to BigInt
+  const bigAmountStr = amountStr.replace(".", "");
+  // Correct for the factor of 10**8
+  const bigAmount =
+    BigInt(bigAmountStr) *
+    BigInt(10 ** (8 - (amountStr.length - amountStr.indexOf(".") - 1)));
+  return bigAmount;
 };
