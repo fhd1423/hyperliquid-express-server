@@ -92,12 +92,25 @@ const executeTrade = async (ticker: string, isBuy: boolean) => {
     ? Math.abs(currentSize ?? 0)
     : Math.floor(TRADE_AMOUNT / price);
 
+  const isReduceOnly = (isLong && !isBuy) || (isShort && isBuy);
   try {
-    await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
+    await main(
+      assetID,
+      isBuy,
+      formatNumber(price, multiplier),
+      tradeSize,
+      isReduceOnly
+    );
   } catch (e) {
     console.log("Retrying trade after 60 seconds...");
     await new Promise((resolve) => setTimeout(resolve, 60000));
-    await main(assetID, isBuy, formatNumber(price, multiplier), tradeSize);
+    await main(
+      assetID,
+      isBuy,
+      formatNumber(price, multiplier),
+      tradeSize,
+      isReduceOnly
+    );
   }
 };
 

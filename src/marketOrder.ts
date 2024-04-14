@@ -17,7 +17,8 @@ const run = async (
   nonce: number,
   signature: Hex,
   vaultAddress: Address,
-  isBuy: boolean
+  isBuy: boolean,
+  reduceOnly: boolean
 ) => {
   const action = {
     type: "order",
@@ -28,7 +29,7 @@ const run = async (
         b: isBuy,
         p: String(limitPx),
         s: String(size),
-        r: false,
+        r: reduceOnly,
         t: { limit: { tif: "Gtc" } },
       },
     ],
@@ -123,7 +124,8 @@ export const main = async (
   assetId: number,
   isBuy: boolean,
   limitPx: number,
-  size: number
+  size: number,
+  reduceOnly: boolean
 ) => {
   let nonce = new Date().getTime();
   let signature = await generateSignature(
@@ -137,9 +139,27 @@ export const main = async (
 
   if (signature) {
     if (isBuy) {
-      await run(assetId, limitPx, size, nonce, signature, VAULT_ADDRESS, true);
+      await run(
+        assetId,
+        limitPx,
+        size,
+        nonce,
+        signature,
+        VAULT_ADDRESS,
+        true,
+        reduceOnly
+      );
     } else {
-      await run(assetId, limitPx, size, nonce, signature, VAULT_ADDRESS, false);
+      await run(
+        assetId,
+        limitPx,
+        size,
+        nonce,
+        signature,
+        VAULT_ADDRESS,
+        false,
+        reduceOnly
+      );
     }
   }
 };

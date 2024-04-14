@@ -1,4 +1,10 @@
 import axios from "axios";
+import dotenv from "dotenv";
+import { Address } from "viem";
+dotenv.config();
+
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const VAULT_ADDRESS = process.env.VAULT_ADDRESS as Address;
 
 export const getAssetID = async (
   ticker: string
@@ -84,25 +90,53 @@ export const getInfo = async (ticker: string): Promise<number | undefined> => {
   return undefined;
 };
 
-async function tester() {
-  console.log(await getInfo("SUI"));
-} //getPrices("ALT");
+export const getExistingPosition = async (ticker: string) => {
+  let response = await axios.post(
+    `https://api.hyperliquid.xyz/info`,
+    {
+      type: "clearinghouseState",
+      user: VAULT_ADDRESS,
+    },
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 
-//console.log(getAssetID("SUI"));
+  console.log(response.data.assetPositions);
+
+  let positions = response.data.assetPositions;
+  return positions.some((position: any) => position.position.coin === ticker);
+};
+
+export const getUnfilledOrders = async () => {
+  let response = await axios.post(
+    `https://api.hyperliquid.xyz/info`,
+    {
+      type: "openOrders",
+      user: VAULT_ADDRESS,
+    },
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+
+  return response.data;
+
+  /* [
+  {
+    coin: 'OP',
+    limitPx: '3.134',
+    oid: 16683615901,
+    origSz: '1595.0',
+    side: 'B',
+    sz: '1595.0',
+    timestamp: 1712233444969
+  }
+] */
+};
+
+async function tester() {
+  console.log(await getUnfilledOrders());
+}
 
 tester();
-
-let example = {
-  action: {
-    twap: { a: 97, b: true, m: 10, r: false, s: "1290", t: false },
-    type: "twapOrder",
-  },
-  isFrontend: true,
-  nonce: 1712068799842,
-  signature: {
-    r: "0xf115941ec825efa46005d75c18705d0f96ce47ac375199d727c83c758f19b536",
-    s: "0x20af2f3faf9f26076fb1159565241b3109c1bf7b993aa9be0912900436b2c2ae",
-    v: 27,
-  },
-  vaultAddress: "0x2ef7f47942a299f0cd1b1c40f85eea4e6b49b6a7",
-};
